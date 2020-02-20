@@ -157,7 +157,7 @@ pvOptions = new  OptionsPickerBuilder(this, new OptionsPickerView.OnOptionsSelec
 
         pvOptions.setPicker(options1Items, options2Items, options3Items);//添加数据源
 ```
-#### 4.如果需要自定义布局：
+#### 4.自定义条件布局：
 
 ```java
         // 注意：自定义布局中，id为 optionspicker 或者 timepicker 的布局以及其子控件必须要有，否则会报空指针
@@ -235,6 +235,131 @@ xml布局：
             android:layout_weight="1" />
     </LinearLayout>
 ```
+
+#### 5.自定义时间布局：
+  Calendar selectedDate = Calendar.getInstance();//系统当前时间
+        Calendar startDate = Calendar.getInstance();
+        startDate.set(2014, 1, 23);
+        Calendar endDate = Calendar.getInstance();
+        endDate.set(2069, 2, 28);
+        //时间选择器 ，自定义布局
+        pvCustomLunar = new TimePickerBuilder(this, new OnTimeSelectListener() {
+            @Override
+            public void onTimeSelect(Date date, View v) {//选中事件回调
+                Toast.makeText(MainActivity.this, getTime(date), Toast.LENGTH_SHORT).show();
+            }
+        })
+                .setDate(selectedDate)
+                .setRangDate(startDate, endDate)
+                .setLayoutRes(R.layout.pickerview_custom_lunar, new CustomListener() {
+
+                    @Override
+                    public void customLayout(final View v) {
+                        final TextView tvSubmit = (TextView) v.findViewById(R.id.tv_finish);
+                        ImageView ivCancel = (ImageView) v.findViewById(R.id.iv_cancel);
+                        tvSubmit.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                pvCustomLunar.returnData();
+                                pvCustomLunar.dismiss();
+                            }
+                        });
+                        ivCancel.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                pvCustomLunar.dismiss();
+                            }
+                        });
+                        //公农历切换
+                        CheckBox cb_lunar = (CheckBox) v.findViewById(R.id.cb_lunar);
+                        cb_lunar.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                            @Override
+                            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                                pvCustomLunar.setLunarCalendar(!pvCustomLunar.isLunarCalendar());
+                                //自适应宽
+                                setTimePickerChildWeight(v, isChecked ? 0.8f : 1f, isChecked ? 1f : 1.1f);
+                            }
+                        });
+
+                    }
+
+                    /**
+                     * 公农历切换后调整宽
+                     * @param v
+                     * @param yearWeight
+                     * @param weight
+                     */
+                    private void setTimePickerChildWeight(View v, float yearWeight, float weight) {
+                        ViewGroup timePicker = (ViewGroup) v.findViewById(R.id.timepicker);
+                        View year = timePicker.getChildAt(0);
+                        LinearLayout.LayoutParams lp = ((LinearLayout.LayoutParams) year.getLayoutParams());
+                        lp.weight = yearWeight;
+                        year.setLayoutParams(lp);
+                        for (int i = 1; i < timePicker.getChildCount(); i++) {
+                            View childAt = timePicker.getChildAt(i);
+                            LinearLayout.LayoutParams childLp = ((LinearLayout.LayoutParams) childAt.getLayoutParams());
+                            childLp.weight = weight;
+                            childAt.setLayoutParams(childLp);
+                        }
+                    }
+                })
+                .setType(new boolean[]{true, true, true, false, false, false})
+                .isCenterLabel(false) //是否只显示中间选中项的label文字，false则每项item全部都带有label。
+                .setDividerColor(Color.RED)
+                .build();
+
+xml布局：
+```xml
+ <!--此部分需要完整复制过去，删减或者更改ID会导致初始化找不到内容而报空-->
+    <LinearLayout
+        android:id="@+id/timepicker"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:gravity="center"
+        android:minHeight="150dp"
+        android:orientation="horizontal">
+
+        <com.contrarywind.view.WheelView
+            android:id="@+id/year"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <com.contrarywind.view.WheelView
+
+            android:id="@+id/month"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.1" />
+
+        <com.contrarywind.view.WheelView
+            android:id="@+id/day"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.1" />
+
+        <com.contrarywind.view.WheelView
+            android:id="@+id/hour"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.1" />
+
+        <com.contrarywind.view.WheelView
+            android:id="@+id/min"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.1" />
+
+        <com.contrarywind.view.WheelView
+            android:id="@+id/second"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1.1" />
+    </LinearLayout>
+
+```
+
 
 #### WheelView 使用代码示例：
 
