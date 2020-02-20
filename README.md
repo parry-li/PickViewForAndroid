@@ -46,7 +46,7 @@
 
 #### 1.添加Jcenter仓库 Gradle依赖：
 ```java
-  implementation 'com.github.parry-li.PickView:pickerview:1.0'
+   implementation 'com.github.parry-li.PickViewForAndroid:pickerview:1.0'
 ```
 
 #### 2.在项目中添加如下代码：
